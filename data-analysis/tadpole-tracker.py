@@ -3,8 +3,10 @@ from datetime import datetime
 from psychopy import gui
 import numpy as np
 from collections import deque
+import tkinter as tk
+from tkinter import messagebox
 
-filename = "18_D6_Control_trial1"
+filename = "23_D6_Control_trial6"
 animalID, timepoint, treatment, trial = filename.split("_")
 trial_num = int(trial[-1:])
 alpha = 8
@@ -19,7 +21,7 @@ if tracker_type == 'CSRT':
 else:
     pass
 capture_data = []
-with open(animalID + '_' + timepoint + '_' + treatment + '_whiteloom_timings.csv', newline='') as csvfile:
+with open(animalID + '_' + timepoint + '_' + treatment + '_timings.csv', newline='') as csvfile:
     reader = csv.DictReader(csvfile)
     for row in reader:
         capture_data.append(row)
@@ -37,15 +39,16 @@ if not ok:
     print('Cannot read video file')
     sys.exit()
 frame_count = int(video.get(cv2.CAP_PROP_FRAME_COUNT))
-#video.set(cv2.CAP_PROP_POS_FRAMES, 0)
-video.set(cv2.CAP_PROP_POS_FRAMES, 266)
-#video.set(cv2.CAP_PROP_POS_FRAMES, frame_count-1)
+video.set(cv2.CAP_PROP_POS_FRAMES, 0)
+ok, frame = video.read()
+first_frame = frame.copy()
+video.set(cv2.CAP_PROP_POS_FRAMES, frame_count-1)
 ok, frame = video.read()
 last_frame = frame.copy()
 img_output = np.zeros((last_frame.shape[0], last_frame.shape[1], 3), np.uint8)
 scale = frame.copy()
 gray_scale = cv2.cvtColor(scale, cv2.COLOR_BGR2GRAY)
-petri_dish = 560  # a default value
+petri_dish = 560 
 circles = cv2.HoughCircles(gray_scale, cv2.HOUGH_GRADIENT, 1.2, 800, param1=50,param2=30,minRadius=80,maxRadius=230)
 if circles is not None:
     circles = np.round(circles[0, :]).astype("int")
@@ -58,15 +61,29 @@ if circles is not None:
     petri_dish = r * 2
     cv2.imshow("Circle detection", scale)
     cv2.waitKey(0)
+cv2.destroyWindow("Circle detection")
 print("Select the tadpole and press SPACE or ENTER.")
 tad_ROI = cv2.selectROI(last_frame, False)
-print("Select an area of background and press SPACE or ENTER.")
-bg_ROI =  cv2.selectROI(last_frame, False)
-bg_img = last_frame[bg_ROI[1]:bg_ROI[1] + bg_ROI[3], bg_ROI[0]:bg_ROI[0] + bg_ROI[2]].copy()
-bg_av = bg_img.mean(axis=0).mean(axis=0)
-cv2.rectangle(last_frame, (tad_ROI[0], tad_ROI[1]), (tad_ROI[0] + tad_ROI[2] , tad_ROI[1] + tad_ROI[3]), bg_av, -1)
-ret, last_frame = cv2.threshold(last_frame, 240, 255,cv2.THRESH_TRUNC)
-last_frame = last_frame + 15
+last_frame[tad_ROI[1]:tad_ROI[1]+tad_ROI[3], tad_ROI[0]:tad_ROI[0]+tad_ROI[2]] = first_frame[tad_ROI[1]:tad_ROI[1]+tad_ROI[3], tad_ROI[0]:tad_ROI[0]+tad_ROI[2]]
+cv2.destroyWindow("ROI selector")
+cv2.imshow("Subtraction frame", last_frame)
+my_w = tk.Tk()
+my_var=messagebox.askyesno("Prompt", "Has the tadpole been removed from the image?")
+if my_var == True:
+    bg_img = last_frame
+    cv2.destroyWindow("Subtraction frame")
+    my_w.destroy()
+if my_var == False:
+    print("Select an area of background and press SPACE or ENTER.")
+    bg_ROI =  cv2.selectROI(first_frame, False)
+    bg_img = last_frame[tad_ROI[1]:tad_ROI[1] + tad_ROI[3], tad_ROI[0]:tad_ROI[0] + tad_ROI[2]].copy()
+    bg_av = bg_img.mean(axis=0).mean(axis=0)
+    cv2.rectangle(last_frame, (tad_ROI[0], tad_ROI[1]), (tad_ROI[0] + tad_ROI[2] , tad_ROI[1] + tad_ROI[3]), bg_av, -1)
+    cv2.destroyWindow("ROI selector")
+    my_w.destroy()
+my_w.mainloop()
+ret, last_frame = cv2.threshold(last_frame, 230, 255,cv2.THRESH_TRUNC)
+last_frame = last_frame + 25
 fourcc = cv2.VideoWriter_fourcc(*'XVID')
 out = cv2.VideoWriter('output_videos/' + filename + '_tracked.avi',fourcc, 30, (640,480))
 video.set(cv2.CAP_PROP_POS_FRAMES, 0)
@@ -233,7 +250,6 @@ while True:
         (10, 55), cv2.FONT_HERSHEY_SIMPLEX,
         0.65, (0, 255, 255), 2)
     if frame_num > stim_frame and frame_num < stim_frame + buffer_2:
-    
         cv2.putText(frame, "LOOMING", (frame.shape[1] - 180, 40), cv2.FONT_HERSHEY_SIMPLEX, 
         1.2, (255, 0, 0), 4)
     cv2.putText(frame, "Vel: " + str(round(curr_vel,1)) ,
