@@ -13,7 +13,6 @@ def user_yes():
         datafilewriter.writerow( data_to_save )
         print("Trial data saved to response_to_loom.csv")
     win.destroy()
-
 def user_no():
     global replay
     replay = False
@@ -25,7 +24,6 @@ def user_no():
         datafilewriter.writerow( data_to_save )
         print("Trial data saved to response_to_loom.csv")
     win.destroy()
-    
 def user_unsure():
     global replay
     replay = False
@@ -37,17 +35,14 @@ def user_unsure():
         datafilewriter.writerow( data_to_save )
         print("Trial data saved to response_to_loom.csv")
     win.destroy()
-    
 def user_replay():
     global replay
     replay = True
     win.destroy()
-
 if os.path.exists('response_to_loom.csv') == False:
         with open ('response_to_loom.csv', 'w', newline='') as datafileinit:
             datafileinitwriter = csv.writer(datafileinit)
             datafileinitwriter.writerow( [ 'Animal ID', 'Timepoint', 'Treatment', 'Trial #', 'Response', 'Timestamp' ] )
-
 video_file_list = glob.glob("*.avi")
 random.shuffle(video_file_list)
 num_videos = len(video_file_list)
@@ -106,3 +101,10 @@ for video_file in video_file_list:
         l.pack()
         f.pack()
         f.mainloop()
+with open('response_to_loom.csv', mode='rt', newline='') as data, open('response_to_loom_sorted.csv', 'w', newline='') as sorted_data:
+    writer = csv.writer(sorted_data, delimiter=',')
+    reader = csv.reader(data, delimiter=',')
+    writer.writerow(next(reader))
+    data = sorted(reader, key=lambda row: (row[0], int(row[3])))        
+    for row in data:
+        writer.writerow(row)
