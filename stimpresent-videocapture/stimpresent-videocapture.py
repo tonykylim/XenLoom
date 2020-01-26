@@ -2,12 +2,12 @@ import numpy, cv2, datetime, threading, time, csv
 from psychopy import visual, core, event, gui
 from psychopy.visual import ShapeStim
 
-experiment_types = ['blackloom', 'whiteloom']
+experiment_types = ['darkloom', 'brightloom']
 experiment_type = experiment_types[0]
-if experiment_type == 'blackloom':
+if experiment_type == 'darkloom':
     background_colour = (1, 1, 1)
     loom_colour = (-1, -1, -1)
-if experiment_type == 'whiteloom':
+if experiment_type == 'brightloom':
     background_colour = (-1, -1, -1)
     loom_colour = (1, 1, 1)
 cap = cv2.VideoCapture(0)

@@ -1,4 +1,4 @@
-import cv2, sys, time, math, numpy, imutils, csv, os
+import cv2, sys, time, math, numpy, imutils, csv, os, glob
 from datetime import datetime
 from psychopy import gui
 import numpy as np
@@ -9,6 +9,9 @@ from tkinter import messagebox
 filename = "23_D6_Control_trial6"
 animalID, timepoint, treatment, trial = filename.split("_")
 trial_num = int(trial[-1:])
+timingscsv = glob.glob(f'{animalID}_{timepoint}_{treatment}_*_timings.csv')
+splitcsv = timingscsv.split("_")
+exp_type = splitcsv[3]
 alpha = 8
 beta = 0
 ellipse_quality = 1.2
@@ -39,10 +42,16 @@ if not ok:
     print('Cannot read video file')
     sys.exit()
 frame_count = int(video.get(cv2.CAP_PROP_FRAME_COUNT))
-video.set(cv2.CAP_PROP_POS_FRAMES, 0)
+if exp_type == darkloom:
+    subframe1 = 0
+    subframe2 = frame_count-1
+if exp_type == brightloom:
+    subframe1 = stim_frame + 20
+    subframe2 = stim_frame + 40
+video.set(cv2.CAP_PROP_POS_FRAMES, subframe1)
 ok, frame = video.read()
 first_frame = frame.copy()
-video.set(cv2.CAP_PROP_POS_FRAMES, frame_count-1)
+video.set(cv2.CAP_PROP_POS_FRAMES, subframe2)
 ok, frame = video.read()
 last_frame = frame.copy()
 img_output = np.zeros((last_frame.shape[0], last_frame.shape[1], 3), np.uint8)
@@ -74,7 +83,7 @@ if my_var == True:
     cv2.destroyWindow("Subtraction frame")
     my_w.destroy()
 if my_var == False:
-    print("Select an area of background and press SPACE or ENTER.")
+    print("Select a bright area of background and press SPACE or ENTER.")
     bg_ROI =  cv2.selectROI(first_frame, False)
     bg_img = last_frame[tad_ROI[1]:tad_ROI[1] + tad_ROI[3], tad_ROI[0]:tad_ROI[0] + tad_ROI[2]].copy()
     bg_av = bg_img.mean(axis=0).mean(axis=0)
@@ -286,7 +295,7 @@ if save_or_not.OK:
     with open('data.csv', 'a', newline='') as datafile:
         datafilewriter = csv.writer(datafile)
         datafilewriter.writerow( data_to_save )
-        print("Data saved to data.csv")
+        print("Data saved to: data.csv")
 else:
     print("Data not saved.")
 cv2.destroyAllWindows()
