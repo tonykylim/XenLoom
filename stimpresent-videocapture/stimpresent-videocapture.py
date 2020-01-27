@@ -4,6 +4,7 @@ from psychopy.visual import ShapeStim
 
 experiment_types = ['darkloom', 'brightloom']
 experiment_type = experiment_types[0]
+loom_speed_modulation = 1
 if experiment_type == 'darkloom':
     background_colour = (1, 1, 1)
     loom_colour = (-1, -1, -1)
@@ -48,6 +49,7 @@ def capture(trial_num):
     capture_data.append(trial_dict)
 mywin = visual.Window([800, 600], monitor="projector", screen=1, fullscr=True, units="pix", pos=None, color=background_colour, colorSpace='rgb')
 stim_time =[]
+stim_end = []
 def stimulus():
     myradius = 1.0
     mysize = 1.0
@@ -62,8 +64,12 @@ def stimulus():
         mywin.flip()
     core.wait(2)
     stim_time.append(time.time())
+    while math.sqrt((mywin.size[0]/2)**2+(mywin.size[1]/2)**2) > mycircle.size:
+        mycircle.setSize(1 + (0.1*loom_speed_modulation), '*')
+        mycircle.draw()
+        mywin.flip()
+    stim_end.append(time.time())
     for i in range(50):
-        mycircle.setSize(1.1, '*')
         mycircle.draw()
         mywin.flip()
     core.wait(0.5)
@@ -78,8 +84,10 @@ for trial in range(10):
     core.wait(1)
 cap.release()
 cv2.destroyAllWindows()
-for x in range(10):
-    capture_data[x].update( {'stim time': stim_time[x] } )
+for x in range(len(stim_time)):
+    capture_data[x].update( {'stim begin': stim_time[x] } )
+for x in range(len(stim_end)):
+    capture_data[x].update( {'stim end': stim_time[x] } )
 keys = capture_data[0].keys()
 with open(expInfo['Animal ID'] + '_'+ expInfo['timepoint'] + '_' + expInfo['treatment'] + '_' +  expInfo['exp_type'] + '_timings.csv', 'w') as output_file:
     dict_writer = csv.DictWriter(output_file, keys)
