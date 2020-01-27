@@ -63,16 +63,19 @@ for video_file in video_file_list:
     animalID, timepoint, treatment, trial = filename.split("_")
     trial_num = int(trial[-1:])
     capture_data = []
-    with open(animalID + '_' + timepoint + '_' + treatment + '_blackloom_timings.csv', newline='') as csvfile:
+    timingscsv = glob.glob(f'{animalID}_{timepoint}_{treatment}_*_timings.csv')
+    with open(timingscsv, newline='') as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
             capture_data.append(row)
-    stim_start = float(capture_data[trial_num]['stim time'])
+    stim_start = float(capture_data[trial_num]['stim begin'])
+    stim_end = float(capture_data[trial_num]['stim end'])
     trial_start = float(capture_data[trial_num]['start'])
-    stim_time = stim_start - trial_start
+    stim_time = stim_start-trial_start
     videofps = float(capture_data[trial_num]['fps'])
-    stim_frame = int( stim_time * videofps )
-    buffer_2 = 2 * videofps
+    stim_frame = int(stim_time*videofps)
+    stim_end_time = stim_end-trial_start
+    stim_end_frame = int(stim_end_time*videofps)
     replay = True
     while replay == True:
         video.set(cv2.CAP_PROP_POS_FRAMES, 0)
@@ -82,7 +85,7 @@ for video_file in video_file_list:
             if not ok:
                 break
             frame_num += 1
-            if frame_num > stim_frame and frame_num < stim_frame + buffer_2:
+            if frame_num > stim_frame and frame_num < stim_end_frame+1:
                 cv2.putText(frame, "LOOMING", (frame.shape[1] - 180, 40), cv2.FONT_HERSHEY_SIMPLEX, 1.2, (255, 0, 0), 4)
             cv2.imshow("Video", frame)
             k = cv2.waitKey(10) & 0xff

@@ -34,8 +34,8 @@ stim_time = stim_start-trial_start
 videofps = float(capture_data[trial_num]['fps'])
 stim_frame = int(stim_time*videofps)
 stim_end = float(capture_data[trial_num]['stim end']
-stim_end_frame = int(stim_end*videofps)
-stim_length = stim_end-stim_start
+stim_end_time = stim_end-trial_start
+stim_end_frame = int(stim_end_time*videofps)
 video = cv2.VideoCapture(filename + ".avi")
 if not video.isOpened():
         print("Could not open video")
