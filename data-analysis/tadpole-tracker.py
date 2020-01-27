@@ -28,11 +28,14 @@ with open(animalID + '_' + timepoint + '_' + treatment + '_timings.csv', newline
     reader = csv.DictReader(csvfile)
     for row in reader:
         capture_data.append(row)
-stim_start = float(capture_data[trial_num]['stim time'])
+stim_start = float(capture_data[trial_num]['stim begin'])
 trial_start = float(capture_data[trial_num]['start'])
-stim_time = stim_start - trial_start
+stim_time = stim_start-trial_start
 videofps = float(capture_data[trial_num]['fps'])
-stim_frame = int( stim_time * videofps )
+stim_frame = int(stim_time*videofps)
+stim_end = float(capture_data[trial_num]['stim end']
+stim_end_frame = int(stim_end*videofps)
+stim_length = stim_end-stim_start
 video = cv2.VideoCapture(filename + ".avi")
 if not video.isOpened():
         print("Could not open video")
@@ -46,8 +49,8 @@ if exp_type == darkloom:
     subframe1 = 0
     subframe2 = frame_count-1
 if exp_type == brightloom:
-    subframe1 = stim_frame + 20
-    subframe2 = stim_frame + 40
+    subframe1 = stim_end_frame + 3
+    subframe2 = stim_end_frame + 47
 video.set(cv2.CAP_PROP_POS_FRAMES, subframe1)
 ok, frame = video.read()
 first_frame = frame.copy()
