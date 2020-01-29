@@ -3,7 +3,7 @@ import cv2
 import imutils
 
 
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(1)
 cap.set(cv2.CAP_PROP_AUTOFOCUS, 0)
 cap.set(cv2.CAP_PROP_FOCUS, 45)
 cap.set(cv2.CAP_PROP_FPS, 30)

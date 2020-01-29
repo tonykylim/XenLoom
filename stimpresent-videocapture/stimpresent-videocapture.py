@@ -1,4 +1,4 @@
-import numpy, cv2, datetime, threading, time, csv
+import numpy, cv2, datetime, threading, time, csv, math
 from psychopy import visual, core, event, gui
 from psychopy.visual import ShapeStim
 
@@ -10,10 +10,12 @@ if experiment_type == 'blackloom':
 if experiment_type == 'whiteloom':
     background_colour = (-1, -1, -1)
     loom_colour = (1, 1, 1)
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(1)
 cap.set(cv2.CAP_PROP_AUTOFOCUS, 0)
-cap.set(cv2.CAP_PROP_FOCUS, 35)
+cap.set(cv2.CAP_PROP_FOCUS, 40)
 cap.set(cv2.CAP_PROP_FPS, 30)
+cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
 while True:
     ret, frame = cap.read()
     if ret==False:
