@@ -11,7 +11,7 @@ if experiment_type == 'darkloom':
 if experiment_type == 'brightloom':
     background_colour = (-1, -1, -1)
     loom_colour = (1, 1, 1)
-cap = cv2.VideoCapture(1)
+cap = cv2.VideoCapture(0)
 cap.set(cv2.CAP_PROP_AUTOFOCUS, 0)
 cap.set(cv2.CAP_PROP_FOCUS, 40)
 cap.set(cv2.CAP_PROP_FPS, 30)
