@@ -8,3 +8,4 @@ mywin = visual.Window([800, 600], monitor="projector", screen=1, fullscr=True, u
 
 while event.waitKeys() == False:
     continue
+mywin.close()
