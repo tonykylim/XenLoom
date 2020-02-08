@@ -4,19 +4,20 @@ from psychopy.visual import ShapeStim
 
 experiment_types = ['darkloom', 'brightloom']
 experiment_type = experiment_types[0]
-loom_speed_modulation = 1
+loom_speed_modulation = 0.0625
 if experiment_type == 'darkloom':
     background_colour = (1, 1, 1)
     loom_colour = (-1, -1, -1)
 if experiment_type == 'brightloom':
     background_colour = (-1, -1, -1)
     loom_colour = (1, 1, 1)
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(0+cv2.CAP_DSHOW)
 cap.set(cv2.CAP_PROP_AUTOFOCUS, 0)
 cap.set(cv2.CAP_PROP_FOCUS, 40)
 cap.set(cv2.CAP_PROP_FPS, 30)
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
 cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+switch = False
 while True:
     ret, frame = cap.read()
     if ret==False:
@@ -32,19 +33,28 @@ else:
     core.quit()
 capture_data = []
 def capture(trial_num):
+    global switch
     fourcc = cv2.VideoWriter_fourcc(*'XVID')
     out = cv2.VideoWriter(expInfo['Animal ID'] + '_'+ expInfo['timepoint'] + '_' + expInfo['treatment'] +'_trial' + str(trial_num)+'.avi',fourcc, 30, (640,480))
     trial_dict = {}
     trial_dict['trial num'] = trial_num
     length = 0
+    frame_timer = 0
     frame_count = 0
     start = time.time()
     trial_dict['start'] = start
-    while(length < 15):
+    while switch == False:
         ret, frame = cap.read()
         out.write(frame)
         frame_count += 1
         length = time.time() - start
+    else:
+        frame_timer = frame_count + 150
+        while frame_count < frame_timer:
+            ret, frame = cap.read()
+            out.write(frame)
+            frame_count += 1
+            length = time.time() - start
     trial_dict['frames'] = frame_count
     trial_dict['duration'] = length
     trial_dict['fps'] = frame_count/length
@@ -53,6 +63,7 @@ mywin = visual.Window([800, 600], monitor="projector", screen=1, fullscr=True, u
 stim_time =[]
 stim_end = []
 def stimulus():
+    global switch
     myradius = 1.0
     mysize = 1.0
     mycircle = visual.Circle(win = mywin, radius = myradius, edges = 128, color=loom_colour, size = mysize )
@@ -71,6 +82,7 @@ def stimulus():
         mycircle.draw()
         mywin.flip()
     stim_end.append(time.time())
+    switch = True
     for i in range(50):
         mycircle.draw()
         mywin.flip()
@@ -78,6 +90,7 @@ def stimulus():
     mycircle.size = 1
     mycircle.draw()
     mywin.flip()
+    switch = False
 for trial in range(10):
     mythread = threading.Thread(target=capture,args=[trial])
     mythread.start()  
