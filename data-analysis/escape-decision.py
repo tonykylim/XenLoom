@@ -63,8 +63,8 @@ for video_file in video_file_list:
     animalID, timepoint, treatment, trial = filename.split("_")
     trial_num = int(trial[-1:])
     capture_data = []
-    timingscsv = glob.glob(f'{animalID}_{timepoint}_{treatment}_*_timings.csv')
-    with open(timingscsv, newline='') as csvfile:
+    timingscsvlist = glob.glob(f'{animalID}_{timepoint}_{treatment}_*_timings.csv')
+    with open(timingscsvlist[0], newline='') as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
             capture_data.append(row)
