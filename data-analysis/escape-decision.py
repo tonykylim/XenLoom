@@ -63,7 +63,7 @@ for video_file in video_file_list:
     animalID, timepoint, treatment, trial = filename.split("_")
     trial_num = int(trial[-1:])
     capture_data = []
-    timingscsv = glob.glob(f'{animalID}_{timepoint}_{treatment}_*_timings.csv')
+    timingscsv = f'{animalID}_{timepoint}_{treatment}_darkloom_timings.csv'
     with open(timingscsv, newline='') as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
@@ -76,6 +76,8 @@ for video_file in video_file_list:
     stim_frame = int(stim_time*videofps)
     stim_end_time = stim_end-trial_start
     stim_end_frame = int(stim_end_time*videofps)
+    print(stim_frame)
+    print(stim_end_frame)
     replay = True
     while replay == True:
         video.set(cv2.CAP_PROP_POS_FRAMES, 0)
@@ -85,7 +87,7 @@ for video_file in video_file_list:
             if not ok:
                 break
             frame_num += 1
-            if frame_num > stim_frame and frame_num < stim_end_frame+1:
+            if frame_num > stim_frame and frame_num < stim_end_frame+250:
                 cv2.putText(frame, "LOOMING", (frame.shape[1] - 180, 40), cv2.FONT_HERSHEY_SIMPLEX, 1.2, (255, 0, 0), 4)
             cv2.imshow("Video", frame)
             k = cv2.waitKey(10) & 0xff
