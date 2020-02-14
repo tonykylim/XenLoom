@@ -9,8 +9,8 @@ from tkinter import messagebox
 filename = "23_D6_Control_trial6"
 animalID, timepoint, treatment, trial = filename.split("_")
 trial_num = int(trial[-1:])
-timingscsv = glob.glob(f'{animalID}_{timepoint}_{treatment}_*_timings.csv')
-splitcsv = timingscsv.split("_")
+timingscsvlist = glob.glob(f'{animalID}_{timepoint}_{treatment}_*_timings.csv')
+splitcsv = timingscsvlist[0].split("_")
 exp_type = splitcsv[3]
 alpha = 8
 beta = 0
