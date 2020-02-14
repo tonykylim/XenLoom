@@ -102,7 +102,7 @@ cv2.destroyAllWindows()
 for x in range(len(stim_time)):
     capture_data[x].update( {'stim begin': stim_time[x] } )
 for x in range(len(stim_end)):
-    capture_data[x].update( {'stim end': stim_time[x] } )
+    capture_data[x].update( {'stim end': stim_end[x] } )
 keys = capture_data[0].keys()
 with open(expInfo['Animal ID'] + '_'+ expInfo['timepoint'] + '_' + expInfo['treatment'] + '_' +  expInfo['exp_type'] + '_timings.csv', 'w') as output_file:
     dict_writer = csv.DictWriter(output_file, keys)
