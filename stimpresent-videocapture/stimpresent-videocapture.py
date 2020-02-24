@@ -4,20 +4,24 @@ from psychopy.visual import ShapeStim
 
 experiment_types = ['darkloom', 'brightloom']
 experiment_type = experiment_types[0]
-loom_speed_modulation = 0.0625
-if experiment_type == 'darkloom':
-    background_colour = (1, 1, 1)
-    loom_colour = (-1, -1, -1)
-if experiment_type == 'brightloom':
-    background_colour = (-1, -1, -1)
-    loom_colour = (1, 1, 1)
+
+loom_speed_modulation = 1
+contrast_percent = 100
+
 cap = cv2.VideoCapture(0+cv2.CAP_DSHOW)
 cap.set(cv2.CAP_PROP_AUTOFOCUS, 0)
 cap.set(cv2.CAP_PROP_FOCUS, 40)
 cap.set(cv2.CAP_PROP_FPS, 30)
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
 cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
-switch = False
+
+if experiment_type == 'darkloom':
+    contrast_value = round(0.5164-(numpy.log10(229.67/((207.68*(1-0.75644*contrast_percent/100)/(0.75644*contrast_percent/100+1))-25.53)-1)/1.21),2)
+    background_colour = (1, 1, 1)
+if experiment_type == 'brightloom':
+    contrast_value = round(0.5164-(numpy.log10(229.67/((-28.8*(1+contrast_percent/100*0.75644)/(contrast_percent/100*0.75644-1))-25.53)-1)/1.21),2)
+    background_colour = (-1,-1,-1)
+loom_colour = (contrast_value,contrast_value,contrast_value)
 while True:
     ret, frame = cap.read()
     if ret==False:
@@ -32,6 +36,7 @@ if dlg.OK:
 else:
     core.quit()
 capture_data = []
+switch = False
 def capture(trial_num):
     global switch
     fourcc = cv2.VideoWriter_fourcc(*'XVID')
