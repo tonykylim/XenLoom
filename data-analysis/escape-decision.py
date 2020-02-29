@@ -35,6 +35,17 @@ def user_unsure():
         datafilewriter.writerow( data_to_save )
         print("Trial data saved to response_to_loom.csv")
     win.destroy()
+def user_freeze():
+    global replay
+    replay = False
+    input = 'F'
+    now = datetime.now()
+    data_to_save = [ animalID, timepoint, treatment, trial[-1:], input, now.strftime("%y/%m/%d %H:%M") ]
+    with open('response_to_loom.csv', 'a', newline='') as datafile:
+        datafilewriter = csv.writer(datafile)
+        datafilewriter.writerow( data_to_save )
+        print("Trial data saved to response_to_loom.csv")
+    win.destroy()
 def user_replay():
     global replay
     replay = True
@@ -95,11 +106,13 @@ for video_file in video_file_list:
         b1 = Button(f, text="Yes", command=user_yes)
         b2 = Button(f, text="No", command=user_no)
         b3 = Button(f, text="Unsure", command=user_unsure)
-        b4 = Button(f, text="Replay", command=user_replay)
+        b4 = Button(f, text="Freeze", command=user_freeze)
+        b5 = Button(f, text="Replay", command=user_replay)
         b1.pack(side=LEFT)
         b2.pack(side=LEFT)
         b3.pack(side=LEFT)
         b4.pack(side=LEFT)
+        b5.pack(side=LEFT)
         l = Label(win, text="Did the tadpole respond to the looming stimuli?")
         l.pack()
         f.pack()
