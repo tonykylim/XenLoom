@@ -1,6 +1,7 @@
 import glob, random, cv2, csv, os
 from datetime import datetime
 from tkinter import *
+from win32api import GetSystemMetrics
 
 def user_yes():
     global replay
@@ -13,6 +14,7 @@ def user_yes():
         datafilewriter.writerow( data_to_save )
         print("Trial data saved to response_to_loom.csv")
     win.destroy()
+    
 def user_no():
     global replay
     replay = False
@@ -24,6 +26,7 @@ def user_no():
         datafilewriter.writerow( data_to_save )
         print("Trial data saved to response_to_loom.csv")
     win.destroy()
+    
 def user_unsure():
     global replay
     replay = False
@@ -35,21 +38,18 @@ def user_unsure():
         datafilewriter.writerow( data_to_save )
         print("Trial data saved to response_to_loom.csv")
     win.destroy()
-def user_freeze():
-    global replay
-    replay = False
-    input = 'F'
-    now = datetime.now()
-    data_to_save = [ animalID, timepoint, treatment, trial[-1:], input, now.strftime("%y/%m/%d %H:%M") ]
-    with open('response_to_loom.csv', 'a', newline='') as datafile:
-        datafilewriter = csv.writer(datafile)
-        datafilewriter.writerow( data_to_save )
-        print("Trial data saved to response_to_loom.csv")
-    win.destroy()
+       
 def user_replay():
     global replay
     replay = True
     win.destroy()
+    
+playback_speed = 3
+def set_playback_speed():
+    global playback_speed
+    playback_speed = playback_slider.get()
+    print("Playback speed set to " + str(playback_speed) + "x")
+    
 if os.path.exists('response_to_loom.csv') == False:
         with open ('response_to_loom.csv', 'w', newline='') as datafileinit:
             datafileinitwriter = csv.writer(datafileinit)
@@ -99,28 +99,37 @@ for video_file in video_file_list:
             if frame_num > stim_frame and frame_num < stim_end_frame+1:
                 cv2.putText(frame, "LOOMING", (frame.shape[1] - 180, 40), cv2.FONT_HERSHEY_SIMPLEX, 1.2, (255, 0, 0), 4)
             cv2.imshow("Video", frame)
-            k = cv2.waitKey(10) & 0xff
-            if k == 27 : break
+            k = cv2.waitKey(int(30/playback_speed)) & 0xff
+            if k == 27 : break      
         win = Tk()
         f = Frame(win)
-        b1 = Button(f, text="Yes", command=user_yes)
-        b2 = Button(f, text="No", command=user_no)
-        b3 = Button(f, text="Unsure", command=user_unsure)
-        b4 = Button(f, text="Freeze", command=user_freeze)
-        b5 = Button(f, text="Replay", command=user_replay)
+        Label(win, text="Did the tadpole respond to the looming stimulus?", font=("Helvetica", 14)).pack()
+        f2 = Frame(win)
+        b1 = Button(f2, text="Evasive Maneuvers!", fg="green", command=user_yes)
         b1.pack(side=LEFT)
+        b2 = Button(f2, text="No Response", fg="red", command=user_no)
         b2.pack(side=LEFT)
-        b3.pack(side=LEFT)
-        b4.pack(side=LEFT)
-        b5.pack(side=LEFT)
-        l = Label(win, text="Did the tadpole respond to the looming stimuli?")
-        l.pack()
-        f.pack()
+        f2.pack()
+        b3 = Button(win, text='Unable to determine', command=user_unsure)
+        b3.pack(pady=10)
+        Label(win, text="Replay controls", font=("Helvetica", 14)).pack()
+        b5 = Button(win, text="Replay", command=user_replay)
+        b5.pack()
+        playback_slider = Scale(win, from_=1, to=4, length=100,tickinterval=1, orient=HORIZONTAL)
+        playback_slider.pack()
+        b6 = Button(win, text='Set Playback Speed', command=set_playback_speed)
+        b6.pack(pady=10)
+        windowWidth = win.winfo_reqwidth()
+        windowHeight = win.winfo_reqheight()
+        positionRight = int(win.winfo_screenwidth()/(1.8) - windowWidth/2)
+        positionDown = int(win.winfo_screenheight()/3 - windowHeight/2)
+        win.geometry("+{}+{}".format(positionRight, positionDown))
         f.mainloop()
+cv2.destroyAllWindows()
 with open('response_to_loom.csv', mode='rt', newline='') as data, open('response_to_loom_sorted.csv', 'w', newline='') as sorted_data:
     writer = csv.writer(sorted_data, delimiter=',')
     reader = csv.reader(data, delimiter=',')
     writer.writerow(next(reader))
-    data = sorted(reader, key=lambda row: ((row[0], row[2], int(row[3])))
+    data = sorted(reader, key=lambda row: ((row[0], row[2], int(row[3]))))
     for row in data:
         writer.writerow(row)
