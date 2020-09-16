@@ -2,6 +2,7 @@ import glob, random, cv2, csv, os
 from datetime import datetime
 from tkinter import *
 from win32api import GetSystemMetrics
+import pandas as pd
 
 def user_yes():
     global replay
@@ -133,3 +134,23 @@ with open('response_to_loom.csv', mode='rt', newline='') as data, open('response
     data = sorted(reader, key=lambda row: ((row[0], row[2], int(row[3]))))
     for row in data:
         writer.writerow(row)
+df = pd.read_csv("response_to_loom_sorted.csv")
+df["Response Rate"]=""
+animals = df['Animal ID'].unique()
+timepoints = df['Timepoint'].unique()
+treatments = df['Treatment'].unique()
+trials = df['Trial #'].unique()
+df2 = pd.DataFrame({"Animal ID":[],"Timepoint":[],"Treatment":[],"Response Rate":[]})
+for animal in animals:
+    print(animal)
+    animal_df = df.loc[df['Animal ID'] == animal]
+    for timepoint in timepoints:
+        timepoint_df = animal_df.loc[animal_df['Timepoint'] == timepoint ]
+        for treatment in treatments:
+            treatment_df = timepoint_df.loc[timepoint_df['Treatment'] == treatment ]
+            pr = treatment_df[treatment_df['Response'] == 1].shape[0]
+            nr = treatment_df[treatment_df['Response'] == 0].shape[0]
+            rr = round(100 * pr / (pr + nr), 2)
+            df2 = df2.append({"Animal ID":animal,"Timepoint":timepoint,"Treatment":treatment,"Response Rate":rr},ignore_index=True)
+df2.sort_values(by=['Treatment','Timepoint','Animal ID'], inplace=True)
+df2.to_csv('response_rate.csv', index=False)
