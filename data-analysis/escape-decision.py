@@ -139,7 +139,6 @@ df["Response Rate"]=""
 animals = df['Animal ID'].unique()
 timepoints = df['Timepoint'].unique()
 treatments = df['Treatment'].unique()
-trials = df['Trial #'].unique()
 df2 = pd.DataFrame({"Animal ID":[],"Timepoint":[],"Treatment":[],"Response Rate":[]})
 for animal in animals:
     print(animal)
