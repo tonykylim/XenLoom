@@ -3,6 +3,7 @@ from datetime import datetime
 from tkinter import *
 from win32api import GetSystemMetrics
 import pandas as pd
+import numpy as np
 
 def user_yes():
     global replay
@@ -149,7 +150,10 @@ for animal in animals:
             treatment_df = timepoint_df.loc[timepoint_df['Treatment'] == treatment ]
             pr = treatment_df[treatment_df['Response'] == 1].shape[0]
             nr = treatment_df[treatment_df['Response'] == 0].shape[0]
-            rr = round(100 * pr / (pr + nr), 2)
+            try:
+                rr = round(100 * pr / (pr + nr), 2)
+            except:
+                rr = np.nan
             df2 = df2.append({"Animal ID":animal,"Timepoint":timepoint,"Treatment":treatment,"Response Rate":rr},ignore_index=True)
 df2.sort_values(by=['Treatment','Timepoint','Animal ID'], inplace=True)
 df2.to_csv('response_rate.csv', index=False)
