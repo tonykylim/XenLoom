@@ -38,7 +38,9 @@ diameter = 52
 pdmaxrad = 200
 
 # filename processing
-animalID, timepoint, treatment, trial = filename.split("_")
+filenamefolder = filename.split("/")
+animalID, timepoint, treatment, trial = filenamefolder[-1].split("_")
+#animalID, timepoint, treatment, trial = filename.split("_")
 trial_num = int(trial[-1:])
 timingscsvlist = glob.glob(f'{animalID}_{timepoint}_{treatment}_*_timings.csv')
 splitcsv = timingscsvlist[0].split("_")
@@ -236,12 +238,12 @@ while True:
         else:
             ellipse = None
         # contrail 2
-        if frame_num >= stim_frame and counter2 < buffer_2:
+        if frame_num >= stim_frame and counter2 <= buffer_2:
             pts2.appendleft(contour_center)
             counter2 += 1
     else:
         pts.appendleft(None)
-        if frame_num >= stim_frame and counter2 < buffer_2:
+        if frame_num >= stim_frame and counter2 <= buffer_2:
             pts2.appendleft(None)
             counter2 += 1
     # location and speed
@@ -275,15 +277,15 @@ while True:
         distance = math.sqrt( (pts2[1][0] - pts2[0][0])**2 + (pts2[1][1] - pts2[0][1])**2 ) / (pixels / diameter)
         totaldis += distance
     # distance traveled before and after looming
-    if frame_num > stim_frame - buffer_4 and frame_num <= stim_frame:
-        if pts2[0] is None or pts2[1] is None:
+    if frame_num > stim_frame - buffer_4  and frame_num <= stim_frame :
+        if pts[0] is None or pts[1] is None:
             continue
-        bl = math.sqrt( (pts2[1][0] - pts2[0][0])**2 + (pts2[1][1] - pts2[0][1])**2 ) / (pixels / diameter)
+        bl = math.sqrt( (pts[1][0] - pts[0][0])**2 + (pts[1][1] - pts[0][1])**2 ) / (pixels / diameter)
         before_loom += bl
     if frame_num > stim_frame and frame_num <= stim_frame + buffer_4:
-        if pts2[0] is None or pts2[1] is None:
+        if pts[0] is None or pts[1] is None:
             continue
-        al = math.sqrt( (pts2[1][0] - pts2[0][0])**2 + (pts2[1][1] - pts2[0][1])**2 ) / (pixels / diameter)
+        al = math.sqrt( (pts[1][0] - pts[0][0])**2 + (pts[1][1] - pts[0][1])**2 ) / (pixels / diameter)
         after_loom += al
     # angle analysis
     if frame_num >= stim_frame and frame_num <= stim_frame + buffer_3:
@@ -563,11 +565,12 @@ for i in np.arange(1, len(pts2)):
 # save data
 now = datetime.now()
 data_to_save = [ animalID, timepoint, treatment, trial[-1:], round(totaldis,1), round(max_v,1), abs(escape_angle), round(before_loom,1), round(after_loom,1), now.strftime("%y/%m/%d %H:%M") ]
+cv2.imshow("contrail", img_output)
 save_or_not = gui.Dlg()
 save_or_not.addText('Save data?')
 save_or_not.show()
 if save_or_not.OK:
-    cv2.imwrite('output_contrails/' + filename + '.jpg',img_output)
+    cv2.imwrite('output_contrails/' + filenamefolder[-1] + '.jpg',img_output)
     if os.path.exists('data.csv') == False:
         with open ('data.csv', 'w', newline='') as datafileinit:
             datafileinitwriter = csv.writer(datafileinit)
