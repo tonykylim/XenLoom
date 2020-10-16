@@ -238,12 +238,12 @@ while True:
         else:
             ellipse = None
         # contrail 2
-        if frame_num >= stim_frame and counter2 <= buffer_2:
+        if frame_num >= stim_frame and counter2 < buffer_2:
             pts2.appendleft(contour_center)
             counter2 += 1
     else:
         pts.appendleft(None)
-        if frame_num >= stim_frame and counter2 <= buffer_2:
+        if frame_num >= stim_frame and counter2 < buffer_2:
             pts2.appendleft(None)
             counter2 += 1
     # location and speed
