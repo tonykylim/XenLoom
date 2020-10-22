@@ -7,7 +7,7 @@ from PIL import Image, ImageDraw
 experiment_types = ['darkloom', 'brightloom', 'isoluminant']
 
 ## Here, choose the experiment type. 0 = dark looming stimuli; 1 = bright looming stimuli; 2 = isoluminant looming stimuli
-## Contrast only mode is 'True' (if on) or 'False' (if off) -- for dark and bright looming only
+## Contrast change only mode is 'True' (if on) or 'False' (if off)
 experiment_type = experiment_types[0]
 contrast_only_mode = False
 
@@ -115,6 +115,7 @@ def generate_noise():
 def noise_circle(circle_size):
     global generated_noise
     global inverse_noise
+    global contrast_only_mode
     myradius = 1.0
     blank_image = Image.new('1', (800, 600))
     draw_circle = ImageDraw.Draw(blank_image)
@@ -122,6 +123,10 @@ def noise_circle(circle_size):
     noise_loom = Image.composite(generated_noise, inverse_noise, blank_image)
     noisycircle = visual.ImageStim(mywin, image=noise_loom)
     noisycircle.draw()
+    if contrast_only_mode == True:
+        rect_colour = round(np.mean(np.array(mywin._getFrame(buffer='back'))) / 255 * 2 - 1,1)
+        myrect = visual.Rect(win = mywin, width=800, height=600, fillColor=(rect_colour, rect_colour, rect_colour), pos=(0,0))
+        myrect.draw()
     mywin.flip()
 # looming function
 def stimulus():
