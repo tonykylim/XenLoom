@@ -6,9 +6,10 @@ from PIL import Image, ImageDraw
 
 experiment_types = ['darkloom', 'brightloom', 'isoluminant']
 
-
 ## Here, choose the experiment type. 0 = dark looming stimuli; 1 = bright looming stimuli; 2 = isoluminant looming stimuli
+## Contrast only mode is 'True' (if on) or 'False' (if off) -- for dark and bright looming only
 experiment_type = experiment_types[0]
+contrast_only_mode = False
 
 ## Here, set the looming speed. 1 is a 0.5 second loom, 0.5 is a 1 second loom, 2 is a 0.5 second loom, etc
 loom_speed_modulation = 1
@@ -125,12 +126,17 @@ def noise_circle(circle_size):
 # looming function
 def stimulus():
     global switch
+    global contrast_only_mode
     # circle variables
     myradius = 1.0
     mysize = 1.0
     # draw circle
     mycircle = visual.Circle(win = mywin, radius = myradius, edges = 128, color=loom_colour, size = mysize )
     mycircle.draw()
+    if contrast_only_mode == True:
+        rect_colour = round(np.mean(np.array(mywin._getFrame(buffer='back'))) / 255 * 2 - 1,1)
+        myrect = visual.Rect(win = mywin, width=800, height=600, fillColor=(rect_colour, rect_colour, rect_colour), pos=(0,0))
+        myrect.draw()
     mywin.flip()
     # wait
     core.wait(2)
@@ -139,6 +145,10 @@ def stimulus():
         mysize += 0.1
         mycircle.size = mysize
         mycircle.draw()
+        if contrast_only_mode == True:
+            rect_colour = round(np.mean(np.array(mywin._getFrame(buffer='back'))) / 255 * 2 - 1,1)
+            myrect.color = (rect_colour,rect_colour,rect_colour)
+            myrect.draw()
         mywin.flip()
     # wait
     core.wait(2)
@@ -148,17 +158,29 @@ def stimulus():
     while math.sqrt((mywin.size[0]/2)**2+(mywin.size[1]/2)**2) > mycircle.size:
         mycircle.setSize(1 + (0.1*loom_speed_modulation), '*')
         mycircle.draw()
+        if contrast_only_mode == True:
+            rect_colour = round(np.mean(np.array(mywin._getFrame(buffer='back'))) / 255 * 2 - 1,1)
+            myrect.color = (rect_colour,rect_colour,rect_colour)
+            myrect.draw()
         mywin.flip()
     stim_end.append(time.time())
     # wait
     for i in range(50):
         mycircle.draw()
+        if contrast_only_mode == True:
+            rect_colour = round(np.mean(np.array(mywin._getFrame(buffer='back'))) / 255 * 2 - 1,1)
+            myrect.color = (rect_colour,rect_colour,rect_colour)
+            myrect.draw()
         mywin.flip()
     core.wait(3)
     switch = True
     # reset
     mycircle.size = 1
     mycircle.draw()
+    if contrast_only_mode == True:
+        rect_colour = round(np.mean(np.array(mywin._getFrame(buffer='back'))) / 255 * 2 - 1,1)
+        myrect.color = (rect_colour,rect_colour,rect_colour)
+        myrect.draw()
     mywin.flip()
     core.wait(0.5)
     switch = False
