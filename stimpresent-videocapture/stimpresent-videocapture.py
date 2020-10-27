@@ -98,7 +98,7 @@ def capture(trial_num):
     trial_dict['fps'] = frame_count/length
     capture_data.append(trial_dict)
 # stimulus setup
-mywin = visual.Window([800, 600], monitor="projector", screen=1, fullscr=False, units="pix", pos=None, color=background_colour, colorSpace='rgb')
+mywin = visual.Window([800, 600], monitor="projector", screen=1, fullscr=True, units="pix", pos=None, color=background_colour, colorSpace='rgb')
 mywin.mouseVisible = False
 # timing of the looming stimulus
 stim_time = []
