@@ -124,7 +124,7 @@ def noise_circle(circle_size):
     noisycircle = visual.ImageStim(mywin, image=noise_loom)
     noisycircle.draw()
     if contrast_only_mode == True:
-        rect_colour = round(np.mean(np.array(mywin._getFrame(buffer='back'))) / 255 * 2 - 1,1)
+        rect_colour = round(numpy.mean(numpy.array(mywin._getFrame(buffer='back'))) / 255 * 2 - 1,1)
         myrect = visual.Rect(win = mywin, width=800, height=600, fillColor=(rect_colour, rect_colour, rect_colour), pos=(0,0))
         myrect.draw()
     mywin.flip()
@@ -139,7 +139,7 @@ def stimulus():
     mycircle = visual.Circle(win = mywin, radius = myradius, edges = 128, color=loom_colour, size = mysize )
     mycircle.draw()
     if contrast_only_mode == True:
-        rect_colour = round(np.mean(np.array(mywin._getFrame(buffer='back'))) / 255 * 2 - 1,1)
+        rect_colour = round(numpy.mean(numpy.array(mywin._getFrame(buffer='back'))) / 255 * 2 - 1,1)
         myrect = visual.Rect(win = mywin, width=800, height=600, fillColor=(rect_colour, rect_colour, rect_colour), pos=(0,0))
         myrect.draw()
     mywin.flip()
@@ -151,7 +151,7 @@ def stimulus():
         mycircle.size = mysize
         mycircle.draw()
         if contrast_only_mode == True:
-            rect_colour = round(np.mean(np.array(mywin._getFrame(buffer='back'))) / 255 * 2 - 1,1)
+            rect_colour = round(numpy.mean(numpy.array(mywin._getFrame(buffer='back'))) / 255 * 2 - 1,1)
             myrect.color = (rect_colour,rect_colour,rect_colour)
             myrect.draw()
         mywin.flip()
@@ -164,7 +164,7 @@ def stimulus():
         mycircle.setSize(1 + (0.1*loom_speed_modulation), '*')
         mycircle.draw()
         if contrast_only_mode == True:
-            rect_colour = round(np.mean(np.array(mywin._getFrame(buffer='back'))) / 255 * 2 - 1,1)
+            rect_colour = round(numpy.mean(numpy.array(mywin._getFrame(buffer='back'))) / 255 * 2 - 1,1)
             myrect.color = (rect_colour,rect_colour,rect_colour)
             myrect.draw()
         mywin.flip()
@@ -173,7 +173,7 @@ def stimulus():
     for i in range(50):
         mycircle.draw()
         if contrast_only_mode == True:
-            rect_colour = round(np.mean(np.array(mywin._getFrame(buffer='back'))) / 255 * 2 - 1,1)
+            rect_colour = round(numpy.mean(numpy.array(mywin._getFrame(buffer='back'))) / 255 * 2 - 1,1)
             myrect.color = (rect_colour,rect_colour,rect_colour)
             myrect.draw()
         mywin.flip()
@@ -183,7 +183,7 @@ def stimulus():
     mycircle.size = 1
     mycircle.draw()
     if contrast_only_mode == True:
-        rect_colour = round(np.mean(np.array(mywin._getFrame(buffer='back'))) / 255 * 2 - 1,1)
+        rect_colour = round(numpy.mean(numpy.array(mywin._getFrame(buffer='back'))) / 255 * 2 - 1,1)
         myrect.color = (rect_colour,rect_colour,rect_colour)
         myrect.draw()
     mywin.flip()
