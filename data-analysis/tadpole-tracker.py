@@ -70,6 +70,8 @@ if exp_type == 'darkloom':
     buffer_3 = int(videofps * 2)
 if exp_type == 'brightloom':
     buffer_3 = int(videofps * 2)
+if exp_type == 'isoluminant':
+    buffer_3 = int(videofps * 2)
 
 # Read video
 video = cv2.VideoCapture(filename + ".avi")
@@ -87,7 +89,7 @@ if not ok:
 
 # determine subtraction frames
 frame_count = int(video.get(cv2.CAP_PROP_FRAME_COUNT))
-if exp_type == 'darkloom':
+if exp_type == 'darkloom' or 'isoluminant':
     subframe1 = 0
     subframe2 = frame_count-1
 if exp_type == 'brightloom':
