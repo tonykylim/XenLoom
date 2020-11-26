@@ -17,7 +17,7 @@ root.destroy()
 # values to play with to improve tracking if required
 ## increase alpha to increase automatic thresholding
 ## decrease alpha to decrease automatic thresholding
-alpha = 3
+alpha = 4
 
 ## beta has a minimal impact on tracking. Sets the "floor" of thresholding algorhythm
 beta = 0
@@ -45,6 +45,14 @@ trial_num = int(trial[-1:])
 timingscsvlist = glob.glob(f'{animalID}_{timepoint}_{treatment}_*_timings.csv')
 splitcsv = timingscsvlist[0].split("_")
 exp_type = splitcsv[3]
+
+#folder processing
+if not os.path.exists('output_videos'):
+    os.makedirs('output_videos')
+if not os.path.exists('output_contrails'):
+    os.makedirs('output_contrails')
+if not os.path.exists('output_speed'):
+    os.makedirs('output_speed')
 
 # data to save
 capture_data = []
@@ -91,7 +99,7 @@ if not ok:
 frame_count = int(video.get(cv2.CAP_PROP_FRAME_COUNT))
 if exp_type == 'darkloom' or 'isoluminant':
     subframe1 = 0
-    subframe2 = frame_count-1
+    subframe2 = frame_count-300
 if exp_type == 'brightloom':
     subframe1 = stim_end_frame + 3
     subframe2 = stim_end_frame + 47
@@ -214,16 +222,28 @@ while True:
     subtracted = cv2.subtract(frame, last_frame)
     blurred = cv2.GaussianBlur(subtracted, (11, 11), cv2.BORDER_DEFAULT)
     contrast = cv2.addWeighted(blurred, alpha, np.zeros(blurred.shape, frame.dtype), 0, beta)
+    contrast2 = cv2.addWeighted(blurred, 1, np.zeros(blurred.shape, frame.dtype), 0, beta)
     bw = cv2.cvtColor(contrast, cv2.COLOR_BGR2GRAY)
+    bw2 = cv2.cvtColor(contrast2, cv2.COLOR_BGR2GRAY)
     ret,mask = cv2.threshold(bw,50,255,cv2.THRESH_BINARY)
+    ret,mask2 = cv2.threshold(bw2,50,255,cv2.THRESH_BINARY)
     mask = cv2.erode(mask, None, iterations=1)
+    mask2 = cv2.erode(mask2, None, iterations=1)
     mask = cv2.dilate(mask, None, iterations=3)
+    mask2 = cv2.dilate(mask2, None, iterations=3)
     # find contours
     contours = cv2.findContours(mask.copy(), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    contours2 = cv2.findContours(mask2.copy(), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
     contours = imutils.grab_contours(contours)
+    contours2 = imutils.grab_contours(contours2)
     # increment frame counter
     frame_num += 1
     # draw contours
+    if len(contours2) > 0:
+        d = max(contours2, key=cv2.contourArea)
+        ((x, y), radius) = cv2.minEnclosingCircle(d)
+        M2 = cv2.moments(d)
+        contour_center2 = (int(M2["m10"] / M2["m00"]), int(M2["m01"] / M2["m00"]))
     if len(contours) > 0:
         # largest contour
         c = max(contours, key=cv2.contourArea)
@@ -315,7 +335,7 @@ while True:
         start_frame = frame.copy()
         frame0 = frame.copy()
         start_tad_position = contour_center       
-        if ellipse[0][0] < contour_center[0]:
+        if ellipse[0][0] < contour_center2[0]:
             start_tad_angle = ellipse[2]
         else:
             start_tad_angle = ellipse[2] + 180
@@ -327,7 +347,7 @@ while True:
         end_frame = frame.copy()
         frame3 = frame.copy()
         end_tad_position = contour_center
-        if ellipse[0][0] < contour_center[0]:
+        if ellipse[0][0] < contour_center2[0]:
             end_tad_angle = round(ellipse[2])
         else:
             end_tad_angle = round(ellipse[2]) + 180
@@ -394,11 +414,11 @@ tadpole_position_1 = start_tad_position
 if start_tad_angle < 90:
     mouse_position_1 = (start_tad_position[0] + 100*math.sin(math.radians(start_tad_angle)), start_tad_position[1] - 100*math.cos(math.radians(start_tad_angle)) )
 elif start_tad_angle < 180:
-    mouse_position_1 = (start_tad_position[0] + 100*math.sin(math.radians(start_tad_angle)), start_tad_position[1] + 100*math.cos(math.radians(start_tad_angle)) )
+    mouse_position_1 = (start_tad_position[0] + 100*math.sin(math.radians(start_tad_angle-90)), start_tad_position[1] + 100*math.cos(math.radians(start_tad_angle-90)) )
 elif start_tad_angle < 270:
     mouse_position_1 = (start_tad_position[0] - 100*math.sin(math.radians(start_tad_angle-180)), start_tad_position[1] + 100*math.cos(math.radians(start_tad_angle-180)) )
 else:
-    mouse_position_1 = (start_tad_position[0] - 100*math.sin(math.radians(start_tad_angle-180)), start_tad_position[1] - 100*math.cos(math.radians(start_tad_angle-180)) )
+    mouse_position_1 = (start_tad_position[0] - 100*math.sin(math.radians(start_tad_angle-270)), start_tad_position[1] - 100*math.cos(math.radians(start_tad_angle-270)) )
 pygame.display.set_caption("Confirm initial angle - Press space to continue")
 mouseclick = False
 running = True
@@ -441,12 +461,12 @@ pygame.display.update()
 tadpole_position_2 = end_tad_position
 if end_tad_angle < 90:
     mouse_position_2 = (end_tad_position[0] + 100*math.sin(math.radians(end_tad_angle)), end_tad_position[1] - 100*math.cos(math.radians(end_tad_angle)) )
-elif start_tad_angle < 180:
-    mouse_position_2 = (end_tad_position[0] + 100*math.sin(math.radians(end_tad_angle)), end_tad_position[1] + 100*math.cos(math.radians(end_tad_angle)) )
-elif start_tad_angle < 270:
+elif end_tad_angle < 180:
+    mouse_position_2 = (end_tad_position[0] + 100*math.sin(math.radians(end_tad_angle-90)), end_tad_position[1] + 100*math.cos(math.radians(end_tad_angle-90)) )
+elif end_tad_angle < 270:
     mouse_position_2 = (end_tad_position[0] - 100*math.sin(math.radians(end_tad_angle-180)), end_tad_position[1] + 100*math.cos(math.radians(end_tad_angle-180)) )
 else:
-    mouse_position_2 = (end_tad_position[0] - 100*math.sin(math.radians(end_tad_angle-180)), end_tad_position[1] - 100*math.cos(math.radians(end_tad_angle-180)) )
+    mouse_position_2 = (end_tad_position[0] - 100*math.sin(math.radians(end_tad_angle-270)), end_tad_position[1] - 100*math.cos(math.radians(end_tad_angle-270)) )
 pygame.display.set_caption("Confirm escape angle - Press space to continue")
 mouseclick = False
 running = True
