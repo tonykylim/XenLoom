@@ -20,6 +20,9 @@ contrast_percent = 100
 ## Here, set the noise size in pixels (for isoluminant looming)
 noise_size = 4
 
+### Here, set the time (in seconds) between trials
+trial_interval = 1
+
 # capture settings
 cap = cv2.VideoCapture(0+cv2.CAP_DSHOW)
 cap.set(cv2.CAP_PROP_AUTOFOCUS, 0)
@@ -227,7 +230,7 @@ for trial in range(10):
     if experiment_type == 'darkloom' or experiment_type == 'brightloom':
         stimulus()
     mythread.join()
-    core.wait(1)
+    core.wait(trial_interval)
 # clean up
 cap.release()
 cv2.destroyAllWindows()
