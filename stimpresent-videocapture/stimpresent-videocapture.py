@@ -20,8 +20,17 @@ contrast_percent = 100
 ## Here, set the noise size in pixels (for isoluminant looming)
 noise_size = 4
 
-### Here, set additional time (in seconds) between trials
+## Here, set additional time (in seconds) between trials
 trial_interval = 0
+
+## contrast calibration variables
+cc_low = 28.798
+cc_high = 207.68
+cc_bottom = 25.53
+cc_top = 255.2
+cc_halfway = 0.5164
+cc_hs = 1.21
+cc_k = (cc_high - cc_low) / (cc_high + cc_low )
 
 # capture settings
 cap = cv2.VideoCapture(0+cv2.CAP_DSHOW)
@@ -33,11 +42,11 @@ cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
 
 # contrast
 if experiment_type == 'darkloom':
-    contrast_value = round(0.5164-(numpy.log10(229.67/((207.68*(1-0.75644*contrast_percent/100)/(0.75644*contrast_percent/100+1))-25.53)-1)/1.21),2)
+    contrast_value = round(cc_halfway - (numpy.log10( (cc_top - cc_bottom) /(( cc_high * (1 - cc_k *contrast_percent/100)/( cc_k *contrast_percent/100 + 1)) - cc_bottom)-1)/ cc_hs),2)
     background_colour = (1, 1, 1)
     loom_colour = (contrast_value,contrast_value,contrast_value)
 if experiment_type == 'brightloom':
-    contrast_value = round(0.5164-(numpy.log10(229.67/((-28.8*(1+contrast_percent/100*0.75644)/(contrast_percent/100*0.75644-1))-25.53)-1)/1.21),2)
+    contrast_value = round(cc_halfway - (numpy.log10( (cc_top - cc_bottom) /(( -cc_low * (1 + contrast_percent/100 * cc_k)/(contrast_percent/100 * cc_k - 1)) - cc_bottom ) - 1 ) / cc_hs),2)
     background_colour = (-1,-1,-1)
     loom_colour = (contrast_value,contrast_value,contrast_value)
 if experiment_type == 'isoluminant':
